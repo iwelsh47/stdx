@@ -260,6 +260,28 @@ public:
     }
   }
   
+  /** Convert to numeric type.
+   *  Performs conversion of the string to the target type. Only works for numerical types.
+   */
+  template <typename T>
+  T convert() const {
+    using namespace std;
+    if constexpr(is_same_v<float, T>) { return strtof(this->c_str(), nullptr); }
+    else if constexpr(is_same_v<double, T>) { return strtod(this->c_str(), nullptr); }
+    else if constexpr(is_same_v<long double, T>) { return strtold(this->c_str(), nullptr); }
+    else if constexpr(is_same_v<int8_t, T> || is_same_v<int16_t, T> || is_same_v<int32_t, T>) {
+      return (T)strtol(this->c_str(), nullptr, 10);
+    }
+    else if constexpr(is_same_v<uint8_t, T> || is_same_v<uint16_t, T> || is_same_v<uint32_t, T>) {
+      return (T)strtoul(this->c_str(), nullptr, 10);
+    }
+    else if constexpr(is_same_v<int64_t, T>) { return (T)strtoll(this->c_str(), nullptr, 10); }
+    else if constexpr(is_same_v<uint64_t, T>) { return (T)strtoull(this->c_str(), nullptr, 10); }
+    else {
+      static_assert(is_same_v<float, T>, "Unsupported type conversion");
+    }
+  }
+  
 };
 
 /** Typedefs for common character types **/
