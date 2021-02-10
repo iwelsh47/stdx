@@ -8,24 +8,18 @@
 #include <iostream>
 
 #include <stdx/string.hpp>
+#include <vector>
+#include <iterator>
 
 int main(int argc, const char * argv[]) {
-  stdx::string test("hello test");
-  stdx::string test_sub = test.substr(0, 5);
-  std::cout << test << " " << test_sub << '\n';
+  stdx::string test("hello test a b c d e f    g  ");
+  std::vector<stdx::string> substrs;
   
-  test = test_sub;
+  test.split(std::back_inserter(substrs), ' ', false);
   
-  std::cout << test << '\n';
-  test = "   Temp try at reassign\n   ";
-  std::cout << test << stdx::string::alphanumeric() << '\n';
-  test_sub = test.strip();
-  std::cout << test_sub << stdx::string::alphanumeric() << '\n';
+  for (stdx::string& s : substrs) {
+    std::cout << s << "|\n";
+  }
   
-  stdx::string test2 = "   123456   ";
-  std::cout << test2 << '1' << '\n';
-  std::cout << test2.strip() << '1' << '\n';
-  test2.strip_inplace();
-  std::cout << test2 << "1\n";
   return 0;
 }

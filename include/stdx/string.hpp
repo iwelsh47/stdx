@@ -157,31 +157,48 @@ public:
   }
   
   /* New string operations */
-  /* Stripping white space from the ends. */
+  /** Strip leading characters
+   *  Strips any leading characters given in \p chars from this, and returns a new string without the stripped characters. Defaults to stripping whitespace.
+   */
   basic_string lstrip(const basic_string& chars = whitespace()) const {
     size_type pos = this->find_first_not_of(chars);
     return (pos == npos) ? basic_string() : basic_string(this->begin() + pos, this->end());
   }
+  /** Strip trailing characters
+   *  Strips any trailing characters given in \p chars from this, and returns a new string without the stripped characters. Defaults to stripping whitespace.
+   */
   basic_string rstrip(const basic_string& chars = whitespace()) const {
     size_type pos = this->find_last_not_of(chars);
     return (pos == npos) ? basic_string() : basic_string(this->begin(), this->begin() + pos + 1);
   }
+  /** Strip leading and trailing characters
+   *  Strips any leading and trailing characters given in \p chars from this, and returns a new string without the stripped characters. Defaults to stripping whitespace.
+   */
   basic_string strip(const basic_string& chars = whitespace()) const {
     size_type left = this->find_first_not_of(chars);
     size_type right = this->find_last_not_of(chars);
     // If left == npos, then right will be too
     return (left == npos) ? basic_string() : basic_string(this->begin() + left, this->begin() + right + 1);
   }
+  /** Strip leading characters
+   *  Strips any leading characters given in \p chars from this. Performs stripping inplace. Defaults to stripping whitespace.
+   */
   basic_string& lstrip_inplace(const basic_string& chars = whitespace()) {
     size_type pos = this->find_first_not_of(chars);
     (pos == npos) ? this->erase(this->begin(), this->end()) : this->erase(this->begin(), this->begin() + pos);
     return *this;
   }
+  /** Strip trailing characters
+   *  Strips any trailing characters given in \p chars from this. Performs stripping inplace. Defaults to stripping whitespace.
+   */
   basic_string& rstrip_inplace(const basic_string& chars = whitespace()) {
     size_type pos = this->find_last_not_of(chars);
     (pos == npos) ? this->erase(this->begin(), this->end()) : this->erase(this->begin() + pos + 1, this->end());
     return *this;
   }
+  /** Strip leading and trailing characters
+   *  Strips any leading and trailing characters given in \p chars from this. Performs stripping inplace. Defaults to stripping whitespace.
+   */
   basic_string& strip_inplace(const basic_string& chars = whitespace()) {
     size_type right = this->find_last_not_of(chars);
     // If right == npos, then left will be too
@@ -194,19 +211,53 @@ public:
     }
     return *this;
   }
-  /* Join iterable for strings together using copies of this. */
+  /** Concatenate a range of strings together.
+   *  Strings are concatenated together using the value of this as the divider between strings.
+   */
   template <typename InputIt>
   basic_string join(InputIt first, InputIt last) const {
     basic_string result;
     size_type num_joiners = std::distance(first, last) - 1;
-    result.reserve(num_joiners * this->size() + 10 * (num_joiners + 1));
+    size_type total_length = 0;
+    for (InputIt begin = first; begin != last; ++begin) { total_length += first->size(); }
+    result.reserve(num_joiners * this->size() + total_length + 1);
     while (first != last) {
       result.append(*first);
       if (num_joiners--) { result.append(*this); }
-      ++num_joiners;
+      ++first;
     }
     result.shrink_to_fit();
     return result;
+  }
+  /** Split a string into components given a separator character.
+   *  Splits string at the locations of the given separator character. If \p separator is negative, will split at white space. If \p treat_consecutive_as_one is false, will add a blank string for each pair of consecutive separators. This is ignored when splitting on whitespace.
+   */
+  template <typename OutputIt>
+  void split(OutputIt out, CharT separator = -1, bool treat_consecutive_as_one = true) const {
+    size_type idx = 0, previous = 0;
+    if (separator < 0 || treat_consecutive_as_one) {
+      basic_string sep = whitespace();
+      if (separator >= 0) { sep = basic_string(1, separator); }
+      while (idx < this->size()) {
+        size_type start = this->find_first_not_of(sep, idx);
+        if (start == npos) { break; } // Only separators in the string
+        size_type end = this->find_first_of(sep, start);
+        if (end == npos) { out = substr(start); }
+        else { out = substr(start, end - start); }
+        idx = end;
+        ++out;
+      }
+    } else {
+      for (CharT c : *this) {
+        if (c == separator) {
+          out = substr(previous, idx - previous);
+          previous = idx + 1;
+        }
+        ++idx;
+        ++out;
+      }
+      if (previous <= idx) { out = substr(previous, idx - previous); ++out; }
+    }
   }
   
 };
