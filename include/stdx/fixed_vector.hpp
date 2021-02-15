@@ -57,9 +57,9 @@ public:
   
   /** Move constructor */
   fixed_vector(fixed_vector&& other) noexcept
-  : elems(std::move(other.elems)), minindex(other.index), maxindex(other.index) { }
+  : elems(std::move(other.elems)), minindex(other.minindex), maxindex(other.maxindex) { }
   fixed_vector(fixed_vector&& other, const Allocator& alloc)
-  : elems(std::move(other.elems), alloc), minindex(other.index), maxindex(other.index) { }
+  : elems(std::move(other.elems), alloc), minindex(other.minindex), maxindex(other.maxindex) { }
   
   /** Initialiser list constructor. */
   fixed_vector(int64_t min, std::initializer_list<T> init, const Allocator& alloc = Allocator())
