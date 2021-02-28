@@ -136,6 +136,9 @@ public:
   T* data() noexcept { return elems.data(); }
   const T* data() const noexcept { return elems.data(); }
   
+  base_type& get_elems() { return elems; }
+  const base_type& get_elems() const { return elems; }
+  
   /** Returns an iterator to the first element of the vector. If the vector is empty, the returned iterator will be equal to end(). */
   iterator begin() noexcept { return elems.begin(); }
   const_iterator begin() const noexcept { return elems.begin(); }
